@@ -387,10 +387,10 @@ int main(void)
  80004ea:	f000 f9f7 	bl	80008dc <MX_DMA_Init>
   MX_USART2_UART_Init();
  80004ee:	f000 f9cb 	bl	8000888 <MX_USART2_UART_Init>
-  MX_ADC1_Init();
- 80004f2:	f000 f8cf 	bl	8000694 <MX_ADC1_Init>
   MX_SPI3_Init();
- 80004f6:	f000 f91f 	bl	8000738 <MX_SPI3_Init>
+ 80004f2:	f000 f921 	bl	8000738 <MX_SPI3_Init>
+  MX_ADC1_Init();
+ 80004f6:	f000 f8cd 	bl	8000694 <MX_ADC1_Init>
   MX_TIM3_Init();
  80004fa:	f000 f955 	bl	80007a8 <MX_TIM3_Init>
   MX_TIM11_Init();
@@ -415,10 +415,10 @@ int main(void)
  8000520:	f002 f910 	bl	8002744 <HAL_GPIO_WritePin>
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  static uint64_t timestamp = 0;
-	  if (micros() - timestamp >= 100)	//100 microsec >> 10 kHz
+	while (1)
+	{
+		static uint64_t timestamp = 0;
+		if (micros() - timestamp > 100)	//100 microsec >> 10 kHz
  8000524:	f000 faf8 	bl	8000b18 <micros>
  8000528:	460a      	mov	r2, r1
  800052a:	4601      	mov	r1, r0
@@ -430,31 +430,31 @@ int main(void)
  800053a:	eb64 040c 	sbc.w	r4, r4, ip
  800053e:	2c00      	cmp	r4, #0
  8000540:	bf08      	it	eq
- 8000542:	2b64      	cmpeq	r3, #100	; 0x64
+ 8000542:	2b65      	cmpeq	r3, #101	; 0x65
  8000544:	d3ee      	bcc.n	8000524 <main+0x4c>
-	  {
-		timestamp = micros();
+		{
+			timestamp = micros();
  8000546:	f000 fae7 	bl	8000b18 <micros>
  800054a:	4603      	mov	r3, r0
  800054c:	460c      	mov	r4, r1
  800054e:	4a18      	ldr	r2, [pc, #96]	; (80005b0 <main+0xd8>)
  8000550:	e9c2 3400 	strd	r3, r4, [r2]
-		//sawtooth >> increase dataout until 4096 then % >> sawtooth graph
-		dataOut++;
+			//sawtooth >> increase dataout until 4096 then % >> sawtooth graph
+			dataOut++;
  8000554:	4b17      	ldr	r3, [pc, #92]	; (80005b4 <main+0xdc>)
  8000556:	881b      	ldrh	r3, [r3, #0]
  8000558:	3301      	adds	r3, #1
  800055a:	b29a      	uxth	r2, r3
  800055c:	4b15      	ldr	r3, [pc, #84]	; (80005b4 <main+0xdc>)
  800055e:	801a      	strh	r2, [r3, #0]
-		dataOut %= 4096;	// data 12 bits >> 2^12 = 4096
+			dataOut %= 4096;	// data 12 bits >> 2^12 = 4096
  8000560:	4b14      	ldr	r3, [pc, #80]	; (80005b4 <main+0xdc>)
  8000562:	881b      	ldrh	r3, [r3, #0]
  8000564:	f3c3 030b 	ubfx	r3, r3, #0, #12
  8000568:	b29a      	uxth	r2, r3
  800056a:	4b12      	ldr	r3, [pc, #72]	; (80005b4 <main+0xdc>)
  800056c:	801a      	strh	r2, [r3, #0]
-		if (hspi3.State == HAL_SPI_STATE_READY && HAL_GPIO_ReadPin(SPI_SS_GPIO_Port, SPI_SS_Pin) == GPIO_PIN_SET)
+			if (hspi3.State == HAL_SPI_STATE_READY && HAL_GPIO_ReadPin(SPI_SS_GPIO_Port, SPI_SS_Pin) == GPIO_PIN_SET)
  800056e:	4b12      	ldr	r3, [pc, #72]	; (80005b8 <main+0xe0>)
  8000570:	f893 3051 	ldrb.w	r3, [r3, #81]	; 0x51
  8000574:	b2db      	uxtb	r3, r3
@@ -466,8 +466,8 @@ int main(void)
  8000584:	4603      	mov	r3, r0
  8000586:	2b01      	cmp	r3, #1
  8000588:	d1cc      	bne.n	8000524 <main+0x4c>
-		{
-			MCP4922SetOutput(DACConfig, dataOut);
+			{
+				MCP4922SetOutput(DACConfig, dataOut);
  800058a:	4b0d      	ldr	r3, [pc, #52]	; (80005c0 <main+0xe8>)
  800058c:	781a      	ldrb	r2, [r3, #0]
  800058e:	4b09      	ldr	r3, [pc, #36]	; (80005b4 <main+0xdc>)
@@ -475,7 +475,7 @@ int main(void)
  8000592:	4619      	mov	r1, r3
  8000594:	4610      	mov	r0, r2
  8000596:	f000 fa61 	bl	8000a5c <MCP4922SetOutput>
-  {
+	{
  800059a:	e7c3      	b.n	8000524 <main+0x4c>
  800059c:	20000048 	.word	0x20000048
  80005a0:	20000128 	.word	0x20000128
@@ -688,13 +688,13 @@ static void MX_ADC1_Init(void)
  80006e4:	4b12      	ldr	r3, [pc, #72]	; (8000730 <MX_ADC1_Init+0x9c>)
  80006e6:	2201      	movs	r2, #1
  80006e8:	61da      	str	r2, [r3, #28]
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
  80006ea:	4b11      	ldr	r3, [pc, #68]	; (8000730 <MX_ADC1_Init+0x9c>)
- 80006ec:	2200      	movs	r2, #0
+ 80006ec:	2201      	movs	r2, #1
  80006ee:	f883 2030 	strb.w	r2, [r3, #48]	; 0x30
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
  80006f2:	4b0f      	ldr	r3, [pc, #60]	; (8000730 <MX_ADC1_Init+0x9c>)
- 80006f4:	2201      	movs	r2, #1
+ 80006f4:	2200      	movs	r2, #0
  80006f6:	615a      	str	r2, [r3, #20]
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
  80006f8:	480d      	ldr	r0, [pc, #52]	; (8000730 <MX_ADC1_Init+0x9c>)
@@ -783,9 +783,9 @@ static void MX_SPI3_Init(void)
  8000764:	4b0e      	ldr	r3, [pc, #56]	; (80007a0 <MX_SPI3_Init+0x68>)
  8000766:	f44f 7200 	mov.w	r2, #512	; 0x200
  800076a:	619a      	str	r2, [r3, #24]
-  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
  800076c:	4b0c      	ldr	r3, [pc, #48]	; (80007a0 <MX_SPI3_Init+0x68>)
- 800076e:	2208      	movs	r2, #8
+ 800076e:	2220      	movs	r2, #32
  8000770:	61da      	str	r2, [r3, #28]
   hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
  8000772:	4b0b      	ldr	r3, [pc, #44]	; (80007a0 <MX_SPI3_Init+0x68>)
@@ -859,9 +859,9 @@ static void MX_TIM3_Init(void)
  80007c4:	4b1c      	ldr	r3, [pc, #112]	; (8000838 <MX_TIM3_Init+0x90>)
  80007c6:	4a1d      	ldr	r2, [pc, #116]	; (800083c <MX_TIM3_Init+0x94>)
  80007c8:	601a      	str	r2, [r3, #0]
-  htim3.Init.Prescaler = 99;
+  htim3.Init.Prescaler = 100;
  80007ca:	4b1b      	ldr	r3, [pc, #108]	; (8000838 <MX_TIM3_Init+0x90>)
- 80007cc:	2263      	movs	r2, #99	; 0x63
+ 80007cc:	2264      	movs	r2, #100	; 0x64
  80007ce:	605a      	str	r2, [r3, #4]
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
  80007d0:	4b19      	ldr	r3, [pc, #100]	; (8000838 <MX_TIM3_Init+0x90>)
@@ -952,9 +952,9 @@ static void MX_TIM11_Init(void)
  8000844:	4b0e      	ldr	r3, [pc, #56]	; (8000880 <MX_TIM11_Init+0x40>)
  8000846:	4a0f      	ldr	r2, [pc, #60]	; (8000884 <MX_TIM11_Init+0x44>)
  8000848:	601a      	str	r2, [r3, #0]
-  htim11.Init.Prescaler = 99;
+  htim11.Init.Prescaler = 100;
  800084a:	4b0d      	ldr	r3, [pc, #52]	; (8000880 <MX_TIM11_Init+0x40>)
- 800084c:	2263      	movs	r2, #99	; 0x63
+ 800084c:	2264      	movs	r2, #100	; 0x64
  800084e:	605a      	str	r2, [r3, #4]
   htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
  8000850:	4b0b      	ldr	r3, [pc, #44]	; (8000880 <MX_TIM11_Init+0x40>)
@@ -1318,7 +1318,7 @@ void MCP4922SetOutput(uint8_t Config, uint16_t DACOutput)
  8000a7e:	f44f 6180 	mov.w	r1, #1024	; 0x400
  8000a82:	4807      	ldr	r0, [pc, #28]	; (8000aa0 <MCP4922SetOutput+0x44>)
  8000a84:	f001 fe5e 	bl	8002744 <HAL_GPIO_WritePin>
-	HAL_SPI_Transmit_IT(&hspi3, &OutputPacket, 1); //size 1 >> 1 outputpacket => 16 bits
+	HAL_SPI_Transmit_IT(&hspi3, &OutputPacket, 1);	//size 1 >> 1 outputpacket => 16 bits
  8000a88:	f107 030c 	add.w	r3, r7, #12
  8000a8c:	2201      	movs	r2, #1
  8000a8e:	4619      	mov	r1, r3
@@ -1438,9 +1438,9 @@ __STATIC_FORCEINLINE void __disable_irq(void)
   __ASM volatile ("cpsid i" : : : "memory");
  8000b50:	b672      	cpsid	i
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1)
  8000b52:	e7fe      	b.n	8000b52 <Error_Handler+0x6>
 
 08000b54 <HAL_MspInit>:
